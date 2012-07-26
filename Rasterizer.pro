@@ -11,8 +11,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    rasterizer.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    rasterizer.h
 
 FORMS    += mainwindow.ui
