@@ -10,6 +10,10 @@ class Rasterizer
 {
     QSizeF resolution_;
     QPointF a_, b_, c_;
+
+    bool qPointCompare(QPointF, QPointF);
+    QList<QPoint> rasterizeLine(QPointF, QPointF);
+
 public:
     Rasterizer();
     Rasterizer(QSizeF, QPointF, QPointF, QPointF);
