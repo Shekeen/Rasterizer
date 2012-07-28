@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <cmath>
 
 class Point {
     int x_, y_;
@@ -41,6 +42,12 @@ class Rasterizer
 {
     SizeF resolution_;
     PointF a_, b_, c_;
+
+    int sign(double x)
+    {
+        if (fabs(x) < 1e-3) return 0;
+        return x > 0.0 ? 1 : -1;
+    }
 
     std::vector<PointF> sorted3(PointF, PointF, PointF);
     std::list<Point> rasterizeLine(PointF, PointF);

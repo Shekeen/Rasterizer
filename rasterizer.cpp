@@ -54,11 +54,15 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
 
     double xcoord = a.x(), ycoord = a.y();
     const double xend = b.x(), yend = b.y();
-    const double denominator = xend - xcoord > yend - ycoord ? xend - xcoord : yend - ycoord;
+    const double denominator = fabs(xend - xcoord) > fabs(yend - ycoord) ?
+                               fabs(xend - xcoord) :
+                               fabs(yend - ycoord);
     const double xstep = (xend - xcoord) / (denominator * 10),
-                ystep = (xend - xcoord) / (denominator * 10);
-
-    for (; xcoord < xend && ycoord < yend; xcoord += xstep, ycoord += ystep) {
+                 ystep = (xend - xcoord) / (denominator * 10);
+    int xstep_sign = sign(xend - xcoord),
+        ystep_sign = sign(yend - ycoord);
+    for (; xstep_sign * xcoord < xstep_sign * xend && ystep_sign * ycoord < ystep_sign * yend;
+           xcoord += xstep, ycoord += ystep) {
         Point new_point((int)floor(xcoord / resolution_.width()),
                          (int)floor(ycoord / resolution_.height()));
         if (pixel_list.empty() || pixel_list.back().x() != new_point.x() || pixel_list.back().y() != new_point.y()) {
