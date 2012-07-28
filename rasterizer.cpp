@@ -6,42 +6,42 @@
 Rasterizer::Rasterizer() :
     resolution_(1.0, 1.0),
     a_(0.0, 0.0),
-    b_(2.0, 0.0),
-    c_(0.0, 2.0)
+    b_(1.0, 1.0),
+    c_(2.0, -2.0)
 {
 }
 
 std::vector<PointF> Rasterizer::sorted3(PointF a, PointF b, PointF c)
 {
-    std::vector<PointF> ans;
+    std::vector<PointF> ans(3);
 
     if (a.y() < b.y()) {
         if (c.y() < a.y()) {
-            ans.push_back(c);
-            ans.push_back(a);
-            ans.push_back(b);
+            ans[0] = c;
+            ans[1] = a;
+            ans[2] = b;
         } else if (c.y() > b.y()) {
-            ans.push_back(a);
-            ans.push_back(b);
-            ans.push_back(c);
+            ans[0] = a;
+            ans[1] = b;
+            ans[2] = c;
         } else {
-            ans.push_back(a);
-            ans.push_back(c);
-            ans.push_back(b);
+            ans[0] = a;
+            ans[1] = c;
+            ans[2] = b;
         }
     } else {
         if (c.y() < b.y()) {
-            ans.push_back(c);
-            ans.push_back(b);
-            ans.push_back(a);
+            ans[0] = c;
+            ans[1] = b;
+            ans[2] = a;
         } else if (c.y() > a.y()) {
-            ans.push_back(b);
-            ans.push_back(a);
-            ans.push_back(c);
+            ans[0] = b;
+            ans[1] = a;
+            ans[2] = c;
         } else {
-            ans.push_back(b);
-            ans.push_back(c);
-            ans.push_back(a);
+            ans[0] = b;
+            ans[1] = c;
+            ans[2] = a;
         }
     }
 
