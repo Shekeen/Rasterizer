@@ -10,6 +10,7 @@ class Point {
 public:
     Point(int x = 0, int y = 0) : x_(x), y_(y) {}
     Point(const Point& p) : x_(p.x_), y_(p.y_) {}
+    Point& operator=(const Point& p) {x_ = p.x_; y_ = p.y_; return *this;}
     void setX(int x) {x_ = x;}
     void setY(int y) {y_ = y;}
     int x() const {return x_;}
@@ -21,6 +22,7 @@ class PointF {
 public:
     PointF(double x = 0.0, double y = 0.0) : x_(x), y_(y) {}
     PointF(const PointF& p) : x_(p.x_), y_(p.y_) {}
+    PointF& operator=(const PointF& p) {x_ = p.x_; y_ = p.y_; return *this;}
     void setX(double x) {x_ = x;}
     void setY(double y) {y_ = y;}
     double x() const {return x_;}
@@ -32,6 +34,7 @@ class SizeF {
 public:
     SizeF(double width = 0.0, double height = 0.0) : width_(width), height_(height) {}
     SizeF(const SizeF& s) : width_(s.width_), height_(s.height_) {}
+    SizeF& operator=(const SizeF& p) {width_ = p.width_; height_ = p.height_; return *this;}
     void setWidth(double width) {width_ = width;}
     void setHeight(double height) {height_ = height;}
     double width() const {return width_;}
