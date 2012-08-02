@@ -52,23 +52,46 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
 {
     std::list<Point> pixel_list;
 
-    double xcoord = a.x(), ycoord = a.y();
-    const double xend = b.x(), yend = b.y();
-    const double denominator = fabs(xend - xcoord) > fabs(yend - ycoord) ?
-                               fabs(xend - xcoord) :
-                               fabs(yend - ycoord);
-    const double xstep = (xend - xcoord) / (denominator * 10),
-                 ystep = (xend - xcoord) / (denominator * 10);
-    int xstep_sign = sign(xend - xcoord),
-        ystep_sign = sign(yend - ycoord);
-    for (; xstep_sign * xcoord < xstep_sign * xend && ystep_sign * ycoord < ystep_sign * yend;
-           xcoord += xstep, ycoord += ystep) {
-        Point new_point((int)floor(xcoord / resolution_.width()),
-                         (int)floor(ycoord / resolution_.height()));
-        if (pixel_list.empty() || pixel_list.back().x() != new_point.x() || pixel_list.back().y() != new_point.y()) {
-            pixel_list.push_back(new_point);
-        }
+    PointF dir(b.x() - a.x(), b.y() - a.y());
+    bool minus_x = a.x() > b.y();
+    bool minus_y = a.y() > b.y();
+
+    int startx = minus_x ? (int)std::floor(a.x() / resolution_.width())
+                         : (int)std::ceil(a.x() / resolution_.width());
+    int starty = minus_y ? (int)std::floor(a.y() / resolution_.height())
+                         : (int)std::ceil(a.y() / resolution_.height());
+
+    int endx = minus_x ? (int)std::ceil(b.x() / resolution_.width())
+                       : (int)std::floor(b.x() / resolution_.width());
+    int endy = minus_y ? (int)std::ceil(b.y() / resolution_.height())
+                       : (int)std::floor(b.y() / resolution_.height());
+
+    if (startx > endx) {
+        int tmp = startx;
+        startx = endx;
+        endx = tmp;
     }
+    if (starty > endy) {
+        int tmp = starty;
+        starty = endy;
+        endy = tmp;
+    }
+
+    std::list<PointF> vertical_intersect;
+    for (int x = startx; x <= endx; x++) {
+        double xcoord = x * resolution_.width();
+        double ycoord = a.y() + (xcoord - a.x()) * dir.y() / dir.x();
+        vertical_intersect.push_back(PointF(xcoord, ycoord));
+    }
+
+    std::list<PointF> horizontal_intersect;
+    for (int y = starty; y <= endy; y++) {
+        double ycoord = y * resolution_.height();
+        double xcoord = a.x() + (ycoord - a.y()) * dir.x() / dir.y();
+        horizontal_intersect.push_back(PointF(xcoord, ycoord));
+    }
+
+    //TODO: finish algorithm
 
     return pixel_list;
 }
