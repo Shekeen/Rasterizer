@@ -90,7 +90,23 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
         double xcoord = a.x() + (ycoord - a.y()) * dir.x() / dir.y();
         horizontal_intersect.push_back(PointF(xcoord, ycoord));
     }
+    if (dir.x() * dir.y() < 0) horizontal_intersect.reverse();
 
+    std::list<PointF> intersections;
+    std::list<PointF>::iterator vert_iter = vertical_intersect.begin(),
+                                horiz_iter = horizontal_intersect.begin();
+    while (vert_iter != vertical_intersect.end() && horiz_iter != horizontal_intersect.end()) {
+        if (vert_iter == vertical_intersect.end()) {
+            intersections.push_back(*(horiz_iter++));
+            continue;
+        }
+        if (horiz_iter == horizontal_intersect.end()) {
+            intersections.push_back(*(vert_iter++));
+            continue;
+        }
+        if (vert_iter->x() < horiz_iter->x()) intersections.push_back(*(vert_iter++));
+        else intersections.push_back(*(horiz_iter++));
+    }
     //TODO: finish algorithm
 
     return pixel_list;
