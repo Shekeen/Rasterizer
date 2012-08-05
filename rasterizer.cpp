@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
+enum IntersectType { VERT, HORIZ };
+
 Rasterizer::Rasterizer() :
     resolution_(1.0, 1.0),
     a_(0.0, 0.0),
@@ -92,20 +94,43 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
     }
     if (dir.x() * dir.y() < 0) horizontal_intersect.reverse();
 
-    std::list<PointF> intersections;
+    std::list< std::pair<PointF, IntersectType> > intersections;
     std::list<PointF>::iterator vert_iter = vertical_intersect.begin(),
                                 horiz_iter = horizontal_intersect.begin();
     while (vert_iter != vertical_intersect.end() && horiz_iter != horizontal_intersect.end()) {
         if (vert_iter == vertical_intersect.end()) {
-            intersections.push_back(*(horiz_iter++));
+            intersections.push_back(std::make_pair(*(horiz_iter++), HORIZ));
             continue;
         }
         if (horiz_iter == horizontal_intersect.end()) {
-            intersections.push_back(*(vert_iter++));
+            intersections.push_back(std::make_pair(*(vert_iter++), VERT));
             continue;
         }
-        if (vert_iter->x() < horiz_iter->x()) intersections.push_back(*(vert_iter++));
-        else intersections.push_back(*(horiz_iter++));
+        if (vert_iter->x() < horiz_iter->x()) intersections.push_back(std::make_pair(*(vert_iter++), VERT));
+        else intersections.push_back(std::make_pair(*(horiz_iter++), HORIZ));
+    }
+
+    std::list< std::pair<PointF, IntersectType> >::iterator first_point = intersections.begin(),
+                                                            second_point = ++(intersections.begin());
+    for (; second_point != intersections.begin(); ++first_point, ++second_point) {
+        if (first_point->second == VERT) {
+            if (second_point->second == VERT) { //VERT; VERT
+                int x = (int)std::floor(first_point->first.x() / resolution_.width());
+                int y = (int)std::floor(first_point->first.y() / resolution_.height());
+                pixel_list.push_back(Point(x, y));
+            } else { //VERT; HORIZ
+
+            }
+        } else {
+            if (second_point->second == VERT) { //HORIZ; VERT
+
+            } else { //HORIZ; HORIZ
+                int x = (int)std::floor(first_point->first.x() / resolution_.width());
+                int y = std::min((int)std::floor(first_point->first.y() / resolution_.height()),
+                                 (int)std::floor(second_point->first.y() / resolution_.height()));
+                pixel_list.push_back(Point(x, y));
+            }
+        }
     }
     //TODO: finish algorithm
 
