@@ -119,11 +119,15 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
                 int y = (int)std::floor(first_point->first.y() / resolution_.height());
                 pixel_list.push_back(Point(x, y));
             } else { //VERT; HORIZ
-
+                int x = (int)std::floor(first_point->first.x() / resolution_.width());
+                int y = (int)std::floor(first_point->first.y() / resolution_.height());
+                pixel_list.push_back(Point(x, y));
             }
         } else {
             if (second_point->second == VERT) { //HORIZ; VERT
-
+                int x = (int)std::floor(first_point->first.x() / resolution_width());
+                int y = (int)std::floor(second_point->first.y() / resolution_.height());
+                pixel_list.push_back(Point(x, y));
             } else { //HORIZ; HORIZ
                 int x = (int)std::floor(first_point->first.x() / resolution_.width());
                 int y = std::min((int)std::floor(first_point->first.y() / resolution_.height()),
@@ -132,7 +136,6 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
             }
         }
     }
-    //TODO: finish algorithm
 
     return pixel_list;
 }
