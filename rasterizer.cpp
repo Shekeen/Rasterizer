@@ -280,5 +280,16 @@ std::list<Point> Rasterizer::rasterize()
         for (int x = x1; x <= x2; x++) pixel_list.push_back(Point(x, y));
     }
 
+    qDebug() << "In function rasterize";
+    qDebug() << "With resolution" << resolution_.width() << resolution_.height();
+    qDebug() << "With a" << a_.x() << a_.y();
+    qDebug() << "With b" << b_.x() << b_.y();
+    qDebug() << "With c" << c_.x() << c_.y();
+    qDebug() << "Answer is:";
+    for (std::list<Point>::iterator i = pixel_list.begin(); i != pixel_list.end(); ++i) {
+        qDebug() << i->x() << i->y();
+    }
+    qDebug() << "";
+
     return pixel_list;
 }

@@ -82,7 +82,13 @@ void MainWindow::doRasterize()
         scene_.addLine(-100, -i, 100, -i, cellPen);
     }
 
-    scene_.addLine(aX, aY, bX, bY);
-    scene_.addLine(aX, aY, cX, cY);
-    scene_.addLine(bX, bY, cX, cY);
+    std::list<Point> points = rasterizer_->rasterize();
+
+    for (std::list<Point>::iterator i = points.begin(); i != points.end(); ++i) {
+        scene_.addRect(resX * i->x(), -resY * i->y(), resX, -resY);
+    }
+
+    scene_.addLine(aX, -aY, bX, -bY);
+    scene_.addLine(aX, -aY, cX, -cY);
+    scene_.addLine(bX, -bY, cX, -cY);
 }
