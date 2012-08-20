@@ -24,7 +24,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>430</x>
@@ -53,7 +53,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_resolutionX"/>
+          <widget class="QLineEdit" name="lineEdit_resolutionX">
+           <property name="text">
+            <string>0.5</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="label_3">
@@ -63,7 +67,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_resolutionY"/>
+          <widget class="QLineEdit" name="lineEdit_resolutionY">
+           <property name="text">
+            <string>0.5</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -90,10 +98,18 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_aX"/>
+            <widget class="QLineEdit" name="lineEdit_aX">
+             <property name="text">
+              <string>0.1</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_aY"/>
+            <widget class="QLineEdit" name="lineEdit_aY">
+             <property name="text">
+              <string>0.1</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -107,10 +123,18 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_bX"/>
+            <widget class="QLineEdit" name="lineEdit_bX">
+             <property name="text">
+              <string>0.9</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_bY"/>
+            <widget class="QLineEdit" name="lineEdit_bY">
+             <property name="text">
+              <string>0.9</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -124,10 +148,18 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_cX"/>
+            <widget class="QLineEdit" name="lineEdit_cX">
+             <property name="text">
+              <string>1.9</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_cY"/>
+            <widget class="QLineEdit" name="lineEdit_cY">
+             <property name="text">
+              <string>-1.9</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

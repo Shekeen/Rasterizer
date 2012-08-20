@@ -84,8 +84,10 @@ void MainWindow::doRasterize()
 
     std::list<Point> points = rasterizer_->rasterize();
 
+    QPen rectPen(Qt::black);
+    QBrush rectBrush(Qt::green);
     for (std::list<Point>::iterator i = points.begin(); i != points.end(); ++i) {
-        scene_.addRect(resX * i->x(), -resY * i->y(), resX, -resY);
+        scene_.addRect(resX * i->x(), -resY * i->y(), resX, -resY, rectPen, rectBrush);
     }
 
     scene_.addLine(aX, -aY, bX, -bY);
