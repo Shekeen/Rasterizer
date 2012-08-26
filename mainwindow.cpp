@@ -72,25 +72,31 @@ void MainWindow::doRasterize()
 
     scene_.clear();
 
-    QPen cellPen(Qt::lightGray);
-    for (double i = 0.0; i < 100.0; i+= resX) {
-        scene_.addLine(i, -100, i, 100, cellPen);
-        scene_.addLine(-i, -100, -i, 100, cellPen);
-    }
-    for (double i = 0.0; i < 100.0; i+= resY) {
-        scene_.addLine(-100, i, 100, i, cellPen);
-        scene_.addLine(-100, -i, 100, -i, cellPen);
+    if (ui->checkBox_grid->isChecked()) {
+        QPen cellPen(Qt::lightGray);
+        for (double i = 0.0; i < 100.0; i+= resX) {
+            scene_.addLine(i, -100, i, 100, cellPen);
+            scene_.addLine(-i, -100, -i, 100, cellPen);
+        }
+        for (double i = 0.0; i < 100.0; i+= resY) {
+            scene_.addLine(-100, i, 100, i, cellPen);
+            scene_.addLine(-100, -i, 100, -i, cellPen);
+        }
     }
 
     std::list<Point> points = rasterizer_->rasterize();
 
-    QPen rectPen(Qt::black);
-    QBrush rectBrush(Qt::green);
-    for (std::list<Point>::iterator i = points.begin(); i != points.end(); ++i) {
-        scene_.addRect(resX * i->x(), -resY * i->y(), resX, -resY, rectPen, rectBrush);
+    if (ui->checkBox_pixels->isChecked()) {
+        QPen rectPen(ui->checkBox_grid->isChecked() ? Qt::black : Qt::green);
+        QBrush rectBrush(Qt::green);
+        for (std::list<Point>::iterator i = points.begin(); i != points.end(); ++i) {
+            scene_.addRect(resX * i->x(), -resY * i->y(), resX, -resY, rectPen, rectBrush);
+        }
     }
 
-    scene_.addLine(aX, -aY, bX, -bY);
-    scene_.addLine(aX, -aY, cX, -cY);
-    scene_.addLine(bX, -bY, cX, -cY);
+    if (ui->checkBox_triangle->isChecked()) {
+        scene_.addLine(aX, -aY, bX, -bY);
+        scene_.addLine(aX, -aY, cX, -cY);
+        scene_.addLine(bX, -bY, cX, -cY);
+    }
 }
