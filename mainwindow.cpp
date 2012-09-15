@@ -84,12 +84,12 @@ void MainWindow::doRasterize()
         }
     }
 
-    std::list<Point> points = rasterizer_->rasterize();
+    std::vector<Point>* points = rasterizer_->rasterize();
 
     if (ui->checkBox_pixels->isChecked()) {
         QPen rectPen(ui->checkBox_grid->isChecked() ? Qt::black : Qt::green);
         QBrush rectBrush(Qt::green);
-        for (std::list<Point>::iterator i = points.begin(); i != points.end(); ++i) {
+        for (std::vector<Point>::iterator i = points->begin(); i != points->end(); ++i) {
             scene_.addRect(resX * i->x(), -resY * i->y(), resX, -resY, rectPen, rectBrush);
         }
     }

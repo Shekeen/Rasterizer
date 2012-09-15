@@ -53,7 +53,7 @@ class Rasterizer
     }
 
     std::vector<PointF> sorted3(PointF, PointF, PointF);
-    std::list<Point> rasterizeLine(PointF, PointF);
+    std::vector<Point>* rasterizeLine(PointF, PointF);
 
 public:
     Rasterizer();
@@ -62,7 +62,7 @@ public:
     void setResolution(SizeF);
     void setTriangle(PointF, PointF, PointF);
 
-    std::list<Point> rasterize();
+    std::vector<Point>* rasterize();
 };
 
 #endif // RASTERIZER_H

@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include <qDebug>
-
 enum IntersectType { VERT, HORIZ };
 
 Rasterizer::Rasterizer() :
@@ -53,18 +51,13 @@ std::vector<PointF> Rasterizer::sorted3(PointF a, PointF b, PointF c)
     return ans;
 }
 
-std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
+std::vector<Point>* Rasterizer::rasterizeLine(PointF a, PointF b)
 {
-    std::list<Point> pixel_list;
+    std::vector<Point>* pixel_list = new std::vector<Point>;
 
     PointF dir(b.x() - a.x(), b.y() - a.y());
     bool minus_x = a.x() > b.x();
     bool minus_y = a.y() > b.y();
-
-    qDebug() << "In function rasterizeLine";
-    qDebug() << "with a =" << a.x() << a.y();
-    qDebug() << "with b =" << b.x() << b.y();
-    qDebug() << "with resolution =" << resolution_.width() << resolution_.height();
 
     int startx = minus_x ? (int)std::floor(a.x() / resolution_.width())
                          : (int)std::ceil(a.x() / resolution_.width());
@@ -75,10 +68,6 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
                        : (int)std::floor(b.x() / resolution_.width());
     int endy = minus_y ? (int)std::ceil(b.y() / resolution_.height())
                        : (int)std::floor(b.y() / resolution_.height());
-
-    qDebug() << "\t start & end are:";
-    qDebug() << startx << starty;
-    qDebug() << endx << endy;
 
     Point start_point((int)std::floor(a.x() / resolution_.width()),
                       (int)std::floor(a.y() / resolution_.height()));
@@ -96,7 +85,8 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
         startx = endx;
         endx = tmp;
     }
-    std::list<PointF> vertical_intersect;
+    std::vector<PointF> vertical_intersect;
+    vertical_intersect.reserve((int)(std::abs(a.x() - b.x()) / resolution_.width()) + 1);
     if (has_vertical_intersections) {
         for (int x = startx; x <= endx; x++) {
             double xcoord = x * resolution_.width();
@@ -110,7 +100,8 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
         starty = endy;
         endy = tmp;
     }
-    std::list<PointF> horizontal_intersect;
+    std::vector<PointF> horizontal_intersect;
+    horizontal_intersect.reserve((int)(std::abs(a.y() - b.y()) / resolution_.height()) + 1);
     if (has_horizontal_intersections) {
         for (int y = starty; y <= endy; y++) {
             double ycoord = y * resolution_.height();
@@ -120,8 +111,9 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
         if (dir.x() * dir.y() < 0) horizontal_intersect.reverse();
     }
 
-    std::list< std::pair<PointF, IntersectType> > intersections;
-    std::list<PointF>::iterator vert_iter = vertical_intersect.begin(),
+    std::vector< std::pair<PointF, IntersectType> > intersections;
+    intersections.reserve(vertical_intersect.size() + horizontal_intersect.size());
+    std::vector<PointF>::iterator vert_iter = vertical_intersect.begin(),
                                 horiz_iter = horizontal_intersect.begin();
     while (vert_iter != vertical_intersect.end() || horiz_iter != horizontal_intersect.end()) {
         if (vert_iter == vertical_intersect.end()) {
@@ -143,44 +135,33 @@ std::list<Point> Rasterizer::rasterizeLine(PointF a, PointF b)
         }
     }
 
-    qDebug() << "\tintersections are:";
-    for (std::list< std::pair<PointF, IntersectType> >::iterator i = intersections.begin();
-         i != intersections.end();
-         ++i) {
-        qDebug() << i->first.x() << i->first.y() << (i->second == HORIZ ? "HORIZ" : "VERT");
-    }
+    pixel_list->reserve(intersections.size() + 1);
 
-    pixel_list.push_back(start_point);
-    pixel_list.push_back(end_point);
+    pixel_list->push_back(start_point);
+    pixel_list->push_back(end_point);
 
     if (intersections.size() > 1) {
-        std::list< std::pair<PointF, IntersectType> >::iterator first_point = intersections.begin(),
+        std::vector< std::pair<PointF, IntersectType> >::iterator first_point = intersections.begin(),
                                                                 second_point = ++(intersections.begin());
         for (; second_point != intersections.end(); ++first_point, ++second_point) {
             if (first_point->second == VERT) { //VERT; VERT and VERT; HORIZ
                 int x = (int)std::floor(first_point->first.x() / resolution_.width());
                 int y = (int)std::floor(first_point->first.y() / resolution_.height());
-                pixel_list.push_back(Point(x, y));
+                pixel_list->push_back(Point(x, y));
             } else {
                 if (second_point->second == VERT) { //HORIZ; VERT
                     int x = (int)std::floor(first_point->first.x() / resolution_.width());
                     int y = (int)std::floor(second_point->first.y() / resolution_.height());
-                    pixel_list.push_back(Point(x, y));
+                    pixel_list->push_back(Point(x, y));
                 } else { //HORIZ; HORIZ
                     int x = (int)std::floor(first_point->first.x() / resolution_.width());
                     int y = std::min((int)std::floor(first_point->first.y() / resolution_.height()),
                                      (int)std::floor(second_point->first.y() / resolution_.height()));
-                    pixel_list.push_back(Point(x, y));
+                    pixel_list->push_back(Point(x, y));
                 }
             }
         }
     }
-
-    qDebug() << "\tanswer is:";
-    for (std::list<Point>::iterator i = pixel_list.begin(); i != pixel_list.end(); ++i) {
-        qDebug() << i->x() << i->y();
-    }
-    qDebug() << "";
 
     return pixel_list;
 }
@@ -221,9 +202,9 @@ public:
     }
 };
 
-std::list<Point> Rasterizer::rasterize()
+std::vector<Point>* Rasterizer::rasterize()
 {
-    std::list<Point> pixel_list;
+    std::vector<Point>* pixel_list = new std::vector<Point>;
 
     std::vector<PointF> vertices = sorted3(a_, b_, c_);
 
@@ -234,68 +215,57 @@ std::list<Point> Rasterizer::rasterize()
     PointF a1(vertices[0]), b1(vertices[1]), c1(divisor);
     PointF a2(vertices[2]), b2(vertices[1]), c2(divisor);
 
-    std::list<Point> b1a1 = rasterizeLine(b1, a1);
-    b1a1.sort(PointCompare());
-    std::list<Point> c1a1 = rasterizeLine(c1, a1);
-    c1a1.sort(PointCompare());
-    std::list<Point>::iterator b1a1_iter = b1a1.begin();
-    std::list<Point>::iterator c1a1_iter = c1a1.begin();
-    while (b1a1_iter != b1a1.end() && c1a1_iter != c1a1.end()) {
+    std::vector<Point>* b1a1 = rasterizeLine(b1, a1);
+    b1a1->sort(PointCompare());
+    std::vector<Point>* c1a1 = rasterizeLine(c1, a1);
+    c1a1->sort(PointCompare());
+    std::vector<Point>::iterator b1a1_iter = b1a1->begin();
+    std::vector<Point>::iterator c1a1_iter = c1a1->begin();
+    while (b1a1_iter != b1a1->end() && c1a1_iter != c1a1->end()) {
         int x1 = b1a1_iter->x(), x2 = c1a1_iter->x(), y = b1a1_iter->y();
         if (x1 > x2) {
             int tmp = x1;
             x1 = x2;
             x2 = tmp;
         }
-        while (b1a1_iter != b1a1.end() && b1a1_iter->y() == y) {
+        while (b1a1_iter != b1a1->end() && b1a1_iter->y() == y) {
             if (b1a1_iter->x() < x1) x1 = b1a1_iter->x();
             if (b1a1_iter->x() > x2) x2 = b1a1_iter->x();
             ++b1a1_iter;
         }
-        while (c1a1_iter != c1a1.end() && c1a1_iter->y() == y) {
+        while (c1a1_iter != c1a1->end() && c1a1_iter->y() == y) {
             if (c1a1_iter->x() < x1) x1 = c1a1_iter->x();
             if (c1a1_iter->x() > x2) x2 = c1a1_iter->x();
             ++c1a1_iter;
         }
-        for (int x = x1; x <= x2; x++) pixel_list.push_back(Point(x, y));
+        for (int x = x1; x <= x2; x++) pixel_list->push_back(Point(x, y));
     }
 
-    std::list<Point> b2a2 = rasterizeLine(b2, a2);
-    b2a2.sort(PointCompare());
-    std::list<Point> c2a2 = rasterizeLine(c2, a2);
-    c2a2.sort(PointCompare());
-    std::list<Point>::iterator b2a2_iter = b2a2.begin();
-    std::list<Point>::iterator c2a2_iter = c2a2.begin();
-    while (b2a2_iter != b2a2.end() && c2a2_iter != c2a2.end()) {
+    std::vector<Point>* b2a2 = rasterizeLine(b2, a2);
+    b2a2->sort(PointCompare());
+    std::vector<Point>* c2a2 = rasterizeLine(c2, a2);
+    c2a2->sort(PointCompare());
+    std::list<Point>::iterator b2a2_iter = b2a2->begin();
+    std::list<Point>::iterator c2a2_iter = c2a2->begin();
+    while (b2a2_iter != b2a2->end() && c2a2_iter != c2a2->end()) {
         int x1 = b2a2_iter->x(), x2 = c2a2_iter->x(), y = b2a2_iter->y();
         if (x1 > x2) {
             int tmp = x1;
             x1 = x2;
             x2 = tmp;
         }
-        while (b2a2_iter != b2a2.end() && b2a2_iter->y() == y) {
+        while (b2a2_iter != b2a2->end() && b2a2_iter->y() == y) {
             if (b2a2_iter->x() < x1) x1 = b2a2_iter->x();
             if (b2a2_iter->x() > x2) x2 = b2a2_iter->x();
             ++b2a2_iter;
         }
-        while (c2a2_iter != c2a2.end() && c2a2_iter->y() == y) {
+        while (c2a2_iter != c2a2->end() && c2a2_iter->y() == y) {
             if (c2a2_iter->x() < x1) x1 = c2a2_iter->x();
             if (c2a2_iter->x() > x2) x2 = c2a2_iter->x();
             ++c2a2_iter;
         }
-        for (int x = x1; x <= x2; x++) pixel_list.push_back(Point(x, y));
+        for (int x = x1; x <= x2; x++) pixel_list->push_back(Point(x, y));
     }
-
-    qDebug() << "In function rasterize";
-    qDebug() << "with resolution" << resolution_.width() << resolution_.height();
-    qDebug() << "with a" << a_.x() << a_.y();
-    qDebug() << "with b" << b_.x() << b_.y();
-    qDebug() << "with c" << c_.x() << c_.y();
-    qDebug() << "\tanswer is:";
-    for (std::list<Point>::iterator i = pixel_list.begin(); i != pixel_list.end(); ++i) {
-        qDebug() << i->x() << i->y();
-    }
-    qDebug() << "";
 
     return pixel_list;
 }
