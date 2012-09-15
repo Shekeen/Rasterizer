@@ -103,12 +103,19 @@ std::vector<Point>* Rasterizer::rasterizeLine(PointF a, PointF b)
     std::vector<PointF> horizontal_intersect;
     horizontal_intersect.reserve((int)(std::abs(a.y() - b.y()) / resolution_.height()) + 1);
     if (has_horizontal_intersections) {
-        for (int y = starty; y <= endy; y++) {
-            double ycoord = y * resolution_.height();
-            double xcoord = a.x() + (ycoord - a.y()) * dir.x() / dir.y();
-            horizontal_intersect.push_back(PointF(xcoord, ycoord));
+        if (dir.x() * dir.y() >= 0) {
+            for (int y = starty; y <= endy; y++) {
+                double ycoord = y * resolution_.height();
+                double xcoord = a.x() + (ycoord - a.y()) * dir.x() / dir.y();
+                horizontal_intersect.push_back(PointF(xcoord, ycoord));
+            }
+        } else {
+            for (int y = endy; y >= starty; y--) {
+                double ycoord = y * resolution_.height();
+                double xcoord = a.x() + (ycoord - a.y()) * dir.x() / dir.y();
+                horizontal_intersect.push_back(PointF(xcoord, ycoord));
+            }
         }
-        if (dir.x() * dir.y() < 0) horizontal_intersect.reverse();
     }
 
     std::vector< std::pair<PointF, IntersectType> > intersections;
@@ -216,9 +223,9 @@ std::vector<Point>* Rasterizer::rasterize()
     PointF a2(vertices[2]), b2(vertices[1]), c2(divisor);
 
     std::vector<Point>* b1a1 = rasterizeLine(b1, a1);
-    b1a1->sort(PointCompare());
+    std::sort(b1a1->begin(), b1a1->end(), PointCompare());
     std::vector<Point>* c1a1 = rasterizeLine(c1, a1);
-    c1a1->sort(PointCompare());
+    std::sort(c1a1->begin(), c1a1->end(), PointCompare());
     std::vector<Point>::iterator b1a1_iter = b1a1->begin();
     std::vector<Point>::iterator c1a1_iter = c1a1->begin();
     while (b1a1_iter != b1a1->end() && c1a1_iter != c1a1->end()) {
@@ -242,11 +249,11 @@ std::vector<Point>* Rasterizer::rasterize()
     }
 
     std::vector<Point>* b2a2 = rasterizeLine(b2, a2);
-    b2a2->sort(PointCompare());
+    std::sort(b2a2->begin(), b2a2->end(), PointCompare());
     std::vector<Point>* c2a2 = rasterizeLine(c2, a2);
-    c2a2->sort(PointCompare());
-    std::list<Point>::iterator b2a2_iter = b2a2->begin();
-    std::list<Point>::iterator c2a2_iter = c2a2->begin();
+    std::sort(c2a2->begin(), c2a2->end(), PointCompare());
+    std::vector<Point>::iterator b2a2_iter = b2a2->begin();
+    std::vector<Point>::iterator c2a2_iter = c2a2->begin();
     while (b2a2_iter != b2a2->end() && c2a2_iter != c2a2->end()) {
         int x1 = b2a2_iter->x(), x2 = c2a2_iter->x(), y = b2a2_iter->y();
         if (x1 > x2) {
